@@ -1,44 +1,82 @@
 import React from 'react';
+import axios from 'axios';
+
+import { LoginView } from '../login-view/login-view';
+import { RegistrationView } from '../login-view/login-view';
 import { MovieCard } from '../movie-card/movie-card';
 import { MovieView } from '../movie-view/movie-view';
 
 export class MainView extends React.Component {
 
-  //the first method to be executed in the component
+  //the first method to be executed in the component - creates the component in-memory
   constructor(){
+    //used to allow access to the component's features (including state)
     super();
-    //initializes movies array the inside this.state object
     this.state = {
-      movies: [
-        { _id: 1, Title: 'Grimsby', Description: 'Grimsby is a 2016 action comedy film directed by Louis Leterrier and written by Sacha Baron Cohen, Phil Johnston, and Peter Baynham.', ImagePath: 'https://m.media-amazon.com/images/M/MV5BMjE0NTE3MjMwNV5BMl5BanBnXkFtZTgwMDc5NjQxODE@._V1_.jpg'},
-        { _id: 2, Title: 'Scent of a Woman', Description: 'Scent of a Woman is an American drama film produced and directed by Martin Brest that tells the story of a preparatory school student who takes a job as an assistant to an irritable, blind, medically retired Army lieutenant colonel.', ImagePath: 'https://m.media-amazon.com/images/M/MV5BZTM3ZjA3NTctZThkYy00ODYyLTk2ZjItZmE0MmZlMTk3YjQwXkEyXkFqcGdeQXVyNTA4NzY1MzY@._V1_.jpg'},
-        { _id: 3, Title: 'Ferris Bueller\'s Day Off', Description: 'A high school slacker pretends to be sick to skip school and have an exciting day off alongside his girlfriend and his best buddy through Chicago, while trying to outwit his obsessive school principal and his unconformited sister along the way. Ferris is a street-wise kid who knows all the tricks.', ImagePath: 'https://upload.wikimedia.org/wikipedia/en/9/9b/Ferris_Bueller%27s_Day_Off.jpg'}
-      ],
+      //initializes movies array and selectedMovie and assigns to component state
+      movies: [],
       //selectedMovie is used to determine which view to display - when set to null, default main-view is displayed
-      selectedMovie: null
+      selectedMovie: null,
+      //user is used to determine whether a user is logged in or not - when set to null, login-view is displayed
+      user: null,
+      //registered is used to determine whether a visitor is registered or not - when set to false, registration-view is displayed
+      registered: true
     }
   }
 
-  //function to be called when selectedMovie changes (on click event)
+  //initializas movies array after component mounted by calling api from axios middleware and changes component state
+  componentDidMount(){
+    axios.get('https://davidsmovieapp.herokuapp.com/movies')
+      .then(response => {
+        this.setState({
+          movies: response.data
+        });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
+  //called when selectedMovie changes (on click event) - changes value of selectedMovie property in component state
   setSelectedMovie(newSelectedMovie) {
     this.setState({
       selectedMovie: newSelectedMovie
     });
   }
 
+  //called whwn a user is logged in, changes value of user property in component state
+  onLoggedIn(user) {
+    this.setState({
+      user
+    });
+  }
+  
   render() {
-    const { movies, selectedMovie } = this.state;
+
+    
+    const { movies, selectedMovie, user, registered } = this.state;
+    
+    //if there is no user, the LoginView is rendered. If there is a user logged in, user details are passed  to LoginView
+    if (!user) return <LoginView onLoggedIn={user => this.onLoggedIn(user)} />;
+
+    //if visitor is not registered, the registration view is rendered
+    if (!registered) return <RegistrationView onLoggedIn={registered => this.onRegister(registerUser)} />;
+
+    //return empty div if no movies are found
+    if (movies.length === 0) return <div className="main-view" />;
   
-    //return message if no movies are found
-    if (movies.length === 0) return <div className="main-view">The list is empty!</div>;
-  
-    //return sub-components of MainView on click events
+    //return div with sub-components 
+    //if a movie has been selected (available in this.state) call MovieView in movie-vie.jsx
+    //else render movie cards (as constructed in render method of movie-card.jsx)
     return (
       <div className="main-view">
         {selectedMovie
-          ? <MovieView movie={selectedMovie} onBackClick={newSelectedMovie => { this.setSelectedMovie(newSelectedMovie); }}/>
+          //if selectedMovie is truthy call MovieView (in movie-view.jsx), pass selectedMovie and onBackClick
+          ? <MovieView movieData={selectedMovie} onBackClick={newSelectedMovie => { this.setSelectedMovie(newSelectedMovie); }}/> //setSelectedMovie called by onBackClick (callback function used as parameter for onClick event in movie-view.jsx) - will change value of selectedMovie
+          //if selectedMovie is falsy iterate through movies array
           : movies.map(movie => (
-            <MovieCard key={movie._id} movie={movie} onMovieClick={(movie) => { this.setSelectedMovie(movie) }}/>
+            //call MovieCard (in movie-card.jsx), pass mapped values for movieData and onMovieClick
+            <MovieCard key={movie._id} movieData={movie} onMovieClick={(movie) => { this.setSelectedMovie(movie) }}/> //setSelectedMovie called by onMovieClick (callback function used as parameter for onClick event in movie-card.jsx) - will change value of selectedMovie
           ))
         }
       </div>
