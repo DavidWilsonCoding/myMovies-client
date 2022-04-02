@@ -1,21 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
+import { CardGroup, Container, Button, Card } from "react-bootstrap";
+import "./movie-card.scss"
 
 export class MovieCard extends React.Component {
-  render() {
+  render () {
     const { movieData, onMovieClick } = this.props;
-
+      
     return (
-      <Card>
-        <Card.Img variant="top" src={movieData.ImagePath} />
-        <Card.Body>
-          <Card.Title>{movieData.Title}</Card.Title>
-          <Card.Text>{movieData.Description}</Card.Text>
-          <Button onClick={() => onMovieClick(movieData)} variant="link">Open</Button>
-        </Card.Body>
-      </Card>
-    );
-  }
+      <Container>
+        <CardGroup>
+          <Card id="movie-card">
+            <a><Card.Img variant="top" src={movieData.ImagePath} /></a>
+            <Card.Body>
+              <Card.Title id="card-title">{movieData.Title}</Card.Title>
+              <Button id="card-button" onClick={() => onMovieClick(movieData)} variant="link">Show more</Button>
+            </Card.Body>
+          </Card>
+        </CardGroup>
+      </Container>
+    )
+  };
 }

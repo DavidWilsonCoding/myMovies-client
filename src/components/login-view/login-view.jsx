@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { Container, Card, Row, Col, Form , Button } from 'react-bootstrap';
+import PropTypes from 'prop-types';
+import './login-view.scss';
 
 export function LoginView(props) {
     const [username, setUsername] = useState('');
@@ -13,18 +16,35 @@ export function LoginView(props) {
     };
 
     return (
-        <form>
-            <label>
-                Username:
-                <input type="text" value={username} onChange={e => setUsername(e.target.value)} />
-            </label>
-            <br />
-            <label>
-                Password:
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)} />
-            </label>
-            <br />
-            <button type="submit" onClick={handleSubmit}>Submit</button>
-        </form>
+        <Container>
+            <Card>
+                <Row>
+                    <Col></Col>
+                        <Col>
+                            <Form>
+                                <Form.Group controlId="formUsername">
+                                    <Form.Label>Username:</Form.Label>
+                                    <Form.Control type="text" onChange={e => setUsername(e.target.value)} />
+                                </Form.Group>
+                                <Form.Group controlId="formPassword">
+                                    <Form.Label>Password:</Form.Label>
+                                    <Form.Control type="password" onChange={e => setPassword(e.target.value)} />
+                                </Form.Group>
+                                <Button id="login-button" variant="primary" type="submit" onClick={handleSubmit}>Submit</Button>
+                            </Form>
+                        </Col>
+                    <Col></Col>
+                </Row>
+            </Card>
+        </Container>
+  
     );
-} 
+}
+
+LoginView.propTypes = {
+    register: PropTypes.shape({
+        Username: PropTypes.string.isRequired,
+        Password: PropTypes.string.isRequired,
+    }),
+    onLoggedIn: PropTypes.func.isRequired
+};
